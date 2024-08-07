@@ -1,14 +1,18 @@
 import type { MiddyfiedHandler } from "@middy/core";
-import { createServer, IncomingMessage } from "http";
+import { createServer, IncomingMessage, ServerResponse, type IncomingHttpHeaders } from "http";
 import { handler } from "./middy_handler";
-import type { APIGatewayEvent } from "aws-lambda";
+import type { Context } from "aws-lambda";
+import { convertRequestToAPIGatewayProxyEventV2 } from "./convertAPIGatewayProxyEventv2";
 
 export function middyServer(handler: MiddyfiedHandler) {
   const hostname = "localhost";
   const port = 3000;
 
-  const server = createServer((req, res) => {
-    req;
+  // TODO: Add option to merge duplicate requests
+  const server = createServer((req: IncomingMessage, res: ServerResponse) => {
+    const convertedRequest = convertRequestToAPIGatewayProxyEventV2(req);
+    const response = handler(convertedRequest, {} as Context, () => { });
+    console.log(response);
     res.statusCode = 200;
     res.setHeader("Content-Type", "text/plain");
     res.end("Hello World");
@@ -19,13 +23,4 @@ export function middyServer(handler: MiddyfiedHandler) {
   });
 }
 
-export function convertRequestToAPIGatewayEvent(req: IncomingMessage) {
-  let event: APIGatewayEvent = {
-    headers: req.headers,
-    body:
-  };
-
-  event.headers = req.headers;
-  event.path = req.url as string;
-}
 middyServer(handler);

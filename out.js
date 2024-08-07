@@ -18,11 +18,12 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // index.ts
-var local_middy_wrapper_exports = {};
-__export(local_middy_wrapper_exports, {
+var local_middy_exports = {};
+__export(local_middy_exports, {
+  convertRequestToAPIGatewayProxyEvent: () => convertRequestToAPIGatewayProxyEvent,
   middyServer: () => middyServer
 });
-module.exports = __toCommonJS(local_middy_wrapper_exports);
+module.exports = __toCommonJS(local_middy_exports);
 var import_http = require("http");
 
 // node_modules/@middy/core/index.js
@@ -376,6 +377,7 @@ var http_router_default = httpRouteHandler;
 // middy_handler.ts
 var getHandler = core_default().handler(
   (event, context) => {
+    console.log(event.pathParameters);
     return {
       statusCode: 200,
       body: "{}"
@@ -386,7 +388,7 @@ var postHandler = core_default().handler(
   (event, context) => {
     return {
       statusCode: 200,
-      body: "{...}"
+      body: "{}"
     };
   }
 );
@@ -409,6 +411,10 @@ function middyServer(handler2) {
   const hostname = "localhost";
   const port = 3e3;
   const server = (0, import_http.createServer)((req, res) => {
+    const convertedRequest = convertRequestToAPIGatewayProxyEvent(req);
+    const response = handler2(convertedRequest, {}, () => {
+    });
+    console.log(response);
     res.statusCode = 200;
     res.setHeader("Content-Type", "text/plain");
     res.end("Hello World");
@@ -417,8 +423,41 @@ function middyServer(handler2) {
     console.log(`Server running at http://${hostname}:${port}/`);
   });
 }
+function convertRequestToAPIGatewayProxyEvent(req) {
+  return {
+    headers: convertHeaders(req.headers),
+    body: null,
+    // TODO: Handle this smart
+    httpMethod: req.method ?? "GET",
+    isBase64Encoded: false,
+    // TODO: Better handle this,
+    path: getUrlPath(req.url),
+    pathParameters: null,
+    queryStringParameters: null,
+    // TODO: Handle this
+    multiValueQueryStringParameters: null,
+    stageVariables: null,
+    requestContext: {},
+    resource: getUrlPath(req.url)
+  };
+}
+function convertHeaders(headers) {
+  let convertedHeaders = {};
+  Object.entries(headers).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      convertedHeaders[key] = value.join(",");
+    } else {
+      convertedHeaders[key] = value;
+    }
+  });
+  return convertedHeaders;
+}
+function getUrlPath(url) {
+  return url ?? "/";
+}
 middyServer(handler);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  convertRequestToAPIGatewayProxyEvent,
   middyServer
 });

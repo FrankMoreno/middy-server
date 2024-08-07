@@ -1,10 +1,11 @@
-import middy from "@middy/core";
+import middy, { type MiddyfiedHandler } from "@middy/core";
 import httpRouterHandler from "@middy/http-router";
 import type { Method } from "@middy/http-router";
 import type { APIGatewayEvent, Context } from "aws-lambda";
 
 const getHandler = middy().handler(
   (event: APIGatewayEvent, context: Context) => {
+    console.log(event.pathParameters)
     return {
       statusCode: 200,
       body: "{}",
@@ -34,4 +35,4 @@ const routes = [
   },
 ];
 
-export const handler = middy().handler(httpRouterHandler(routes));
+export const handler: MiddyfiedHandler = middy().handler(httpRouterHandler(routes));
