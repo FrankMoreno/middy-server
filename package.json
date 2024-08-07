@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild index.ts --bundle --platform=node --outfile=out.js",
+    "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/out.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
