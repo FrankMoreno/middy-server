@@ -1,9 +1,15 @@
 import type { MiddyfiedHandler } from "@middy/core";
 import { createServer, IncomingMessage, ServerResponse, type IncomingHttpHeaders } from "http";
-import type { Context } from "aws-lambda";
+import type { ALBEvent, APIGatewayProxyEvent, APIGatewayProxyEventV2, Context } from "aws-lambda";
 import { convertRequestToAPIGatewayProxyEventV2 } from "./convertAPIGatewayProxyEventv2";
 
-export function middyServer(handler: MiddyfiedHandler) {
+interface middyServerOptions {
+  host: string
+  port: number
+  eventType: APIGatewayProxyEvent | APIGatewayProxyEventV2 | ALBEvent
+}
+
+export function middyServer(handler: MiddyfiedHandler, options?: middyServerOptions) {
   const hostname = "localhost";
   const port = 3000;
 
