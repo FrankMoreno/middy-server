@@ -1,0 +1,23 @@
+{
+  "name": "local-middy-wrapper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild index.ts --bundle --platform=node --outfile=out.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@middy/http-router": "^4.7.0",
+    "@middy/validator": "^4.7.0",
+    "@types/aws-lambda": "^8.10.142",
+    "@types/node": "^22.0.2",
+    "esbuild": "0.23.0",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@middy/core": "^4.7.0"
+  }
+}
