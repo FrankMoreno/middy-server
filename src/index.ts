@@ -17,7 +17,6 @@ export function middyServer(handler: MiddyfiedHandler, options?: middyServerOpti
   const server = createServer((req: IncomingMessage, res: ServerResponse) => {
     const convertedRequest = convertRequestToAPIGatewayProxyEventV2(req);
     const response = handler(convertedRequest, {} as Context, () => { });
-    console.log(response);
     res.statusCode = 200;
     res.setHeader("Content-Type", "text/plain");
     res.end("Hello World");
