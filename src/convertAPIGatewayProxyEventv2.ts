@@ -1,13 +1,14 @@
 import type {
+  APIGatewayEventRequestContextV2,
   APIGatewayProxyEventV2,
   APIGatewayProxyEventV2WithRequestContext,
   APIGatewayProxyResultV2,
-  APIGatewayProxyStructuredResultV2
+  APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
-import type {
-  IncomingHttpHeaders,
-  IncomingMessage,
-  ServerResponse,
+import {
+  type IncomingHttpHeaders,
+  type IncomingMessage,
+  type ServerResponse,
 } from "http";
 
 export function convertRequestToAPIGatewayProxyEventV2(
@@ -21,11 +22,12 @@ export function convertRequestToAPIGatewayProxyEventV2(
     httpMethod: req.method ?? "GET",
     isBase64Encoded: false, // TODO: Better handle this,
     path: getUrlPath(req.url),
-    pathParameters: null,
-    queryStringParameters: parsedUrl.query, // TODO: Handle this
+    pathParameters: undefined,
+    queryStringParameters: url.query, // TODO: Handle this
     multiValueQueryStringParameters: null,
-    stageVariables: null,
-    requestContext: {} as unknown as APIGatewayProxyEventV2WithRequestContext,
+    stageVariables: undefined, // TODO: Probably handle this
+    requestContext:
+      {} as unknown as APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>, // TODO: Create a default for this, eventually allow someone to pass this in
     resource: getUrlPath(req.url),
   };
 }
@@ -54,10 +56,20 @@ export function convertAPIGatewayProxyResultV2(
   result: APIGatewayProxyResultV2,
   response: ServerResponse
 ) {
-    if (typeof result === 'string') {
-        response.statusCode = 200;
-        response.end(result);
-    }
-    result.valueOf
-  response.statusCode = result.;
+  if (typeof result === "string") {
+    response.statusCode = 200;
+    response.end(result);
+  }
+
+  result = result as APIGatewayProxyStructuredResultV2;
+
+  response.statusCode = result.statusCode ?? 200;
+
+  if (result.headers) {
+    Object.entries(result.headers).forEach(([key, value]) => {
+      response.appendHeader(key, String(value));
+    });
+  }
+
+  response.end(result.body ?? null);
 }
