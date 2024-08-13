@@ -5,7 +5,7 @@ import type { APIGatewayEvent, Context } from "aws-lambda";
 
 const getHandler = middy().handler(
   (event: APIGatewayEvent, context: Context) => {
-    console.log(event.pathParameters)
+    console.log(event.pathParameters);
     return {
       statusCode: 200,
       body: "{}",
@@ -16,8 +16,9 @@ const getHandler = middy().handler(
 const postHandler = middy().handler(
   (event: APIGatewayEvent, context: Context) => {
     return {
-      statusCode: 200,
-      body: "{}",
+      headers: { "content-type": "application/json" },
+      statusCode: 201,
+      body: '{"hello": "world"}',
     };
   }
 );
@@ -29,10 +30,12 @@ const routes = [
     handler: getHandler,
   },
   {
-    method: "POST" as Method,
+    method: "GET" as Method,
     path: "/user",
     handler: postHandler,
   },
 ];
 
-export const handler: MiddyfiedHandler = middy().handler(httpRouterHandler(routes));
+export const handler: MiddyfiedHandler = middy().handler(
+  httpRouterHandler(routes)
+);
