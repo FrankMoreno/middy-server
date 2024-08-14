@@ -1,13 +1,13 @@
 {
-  "name": "local-middy-wrapper",
-  "version": "1.0.0",
+  "name": "middy-server",
+  "version": "0.1.0-alpha",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js",
     "build:test": "esbuild test/index.ts --bundle --platform=node --outfile=dist/test.js"
   },
-  "author": "",
+  "author": "frank.moreno95@gmail.com",
   "license": "ISC",
   "devDependencies": {
     "@middy/http-router": "^5.4.6",
@@ -19,6 +19,5 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    
   }
 }
