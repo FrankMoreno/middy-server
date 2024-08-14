@@ -52,13 +52,7 @@ export function middyServer(
 
           const convertedRequest = getConvertedRequest(req, options, body);
 
-          console.log(convertedRequest);
-
-          const result = await handler(
-            convertedRequest,
-            {} as Context,
-            () => {}
-          );
+          const result = await handler(convertedRequest, {} as Context);
 
           convertResponse(res, result, "APIGatewayProxyResultV2");
         } catch (error) {
