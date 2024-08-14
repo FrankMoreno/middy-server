@@ -61,6 +61,7 @@ export function middyServer(
           options.eventType,
           body
         );
+        console.log(convertedRequest);
         try {
           const result = await handler(
             convertedRequest,

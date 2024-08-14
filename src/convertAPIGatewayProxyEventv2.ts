@@ -24,12 +24,15 @@ export function convertRequestToAPIGatewayProxyEventV2(
     isBase64Encoded: false, // TODO: Better handle this,
     path: getUrlPath(req.url),
     pathParameters: undefined,
-    queryStringParameters: url.query, // TODO: Handle this
+    queryStringParameters: getQueryParameters(
+      url,
+      req.headers.host ?? "http//localhost:3000" // TODO: Handle this
+    ),
     multiValueQueryStringParameters: null,
     stageVariables: undefined, // TODO: Probably handle this
     requestContext:
       {} as unknown as APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>, // TODO: Create a default for this, eventually allow someone to pass this in
-    resource: getUrlPath(req.url),
+    resource: url,
   };
 }
 
@@ -47,6 +50,22 @@ function convertHeaders(
   });
 
   return convertedHeaders;
+}
+
+function getQueryParameters(url: string, host: string) {
+  const fullURL = new URL(url, host);
+
+  const queryParams = new URLSearchParams(fullURL.search);
+  if (queryParams.size === 0) {
+    return undefined;
+  }
+
+  const queryObject: { [key: string]: string } = {};
+  queryParams.forEach((value, key) => {
+    queryObject[key] = value;
+  });
+
+  return queryObject;
 }
 
 function getUrlPath(url: string | undefined): string {
