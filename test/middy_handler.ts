@@ -5,7 +5,7 @@ import type { APIGatewayEvent, Context } from "aws-lambda";
 
 const getHandler = middy().handler(
   (event: APIGatewayEvent, context: Context) => {
-    console.log(event.pathParameters);
+    console.log(event.body);
     return {
       statusCode: 200,
       body: "{}",

@@ -1,5 +1,5 @@
 import type { MiddyfiedHandler } from "@middy/core";
-import { createServer, IncomingMessage, ServerResponse } from "http";
+import { createServer, IncomingMessage, request, ServerResponse } from "http";
 import type {
   ALBEvent,
   ALBResult,
@@ -44,9 +44,36 @@ export function middyServer(
   // TODO: Add option to merge duplicate requests
   const server = createServer(
     async (req: IncomingMessage, res: ServerResponse) => {
-      const convertedRequest = getConvertedRequest(req, options.eventType);
-      const result = await handler(convertedRequest, {} as Context, () => {});
-      convertResponse(res, result, "APIGatewayProxyResultV2");
+      const buffer: Buffer[] = [];
+
+      req.on("error", (err) => {
+        console.log(err);
+      });
+
+      req.on("data", (chunk) => {
+        buffer.push(chunk);
+      });
+
+      req.on("end", async () => {
+        const body = Buffer.concat(buffer).toString();
+        const convertedRequest = getConvertedRequest(
+          req,
+          options.eventType,
+          body
+        );
+        try {
+          const result = await handler(
+            convertedRequest,
+            {} as Context,
+            () => {}
+          );
+          convertResponse(res, result, "APIGatewayProxyResultV2");
+        } catch (error) {
+          console.log(error);
+          res.statusCode = 500;
+          res.end();
+        }
+      });
     }
   );
 
@@ -55,12 +82,16 @@ export function middyServer(
   });
 }
 
-function getConvertedRequest(req: IncomingMessage, eventType: ServerEvent) {
+function getConvertedRequest(
+  req: IncomingMessage,
+  eventType: ServerEvent,
+  body?: string
+) {
   switch (eventType) {
     case "APIGatewayProxyEvent":
       return null;
     case "APIGatewayProxyEventV2":
-      return convertRequestToAPIGatewayProxyEventV2(req);
+      return convertRequestToAPIGatewayProxyEventV2(req, body);
     case "ALBEvent":
       return null;
   }

@@ -12,13 +12,14 @@ import {
 } from "http";
 
 export function convertRequestToAPIGatewayProxyEventV2(
-  req: IncomingMessage
+  req: IncomingMessage,
+  body?: string
 ): APIGatewayProxyEventV2 {
   const url = getUrlPath(req.url);
 
   return {
     headers: convertHeaders(req.headers),
-    body: undefined, // TODO: Handle this smart
+    body,
     httpMethod: req.method ?? "GET",
     isBase64Encoded: false, // TODO: Better handle this,
     path: getUrlPath(req.url),
