@@ -9,7 +9,7 @@ import type {
 import {
   convertAPIGatewayProxyResultV2,
   convertRequestToAPIGatewayProxyEventV2,
-} from "./convertAPIGatewayProxyEventv2";
+} from "./APIGatewayProxyEventV2";
 
 export type ServerEvent =
   | "APIGatewayProxyEvent"
