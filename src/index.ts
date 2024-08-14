@@ -1,10 +1,7 @@
 import type { MiddyfiedHandler } from "@middy/core";
-import { createServer, IncomingMessage, request, ServerResponse } from "http";
+import { createServer, IncomingMessage, ServerResponse } from "http";
 import type {
-  ALBEvent,
   ALBResult,
-  APIGatewayProxyEvent,
-  APIGatewayProxyEventV2,
   APIGatewayProxyResult,
   APIGatewayProxyResultV2,
   Context,
@@ -24,23 +21,18 @@ export type ServerResult =
   | "APIGatewayProxyResultV2"
   | "ALBResult";
 
-export interface middyServerOptions {
-  host: string;
+export interface MiddyServerOptions {
   port: number;
   eventType: ServerEvent;
 }
 
 export function middyServer(
   handler: MiddyfiedHandler,
-  options: middyServerOptions = {
-    host: "localhost",
+  options: MiddyServerOptions = {
     port: 3000,
     eventType: "APIGatewayProxyEventV2",
   }
 ) {
-  const hostname = "localhost";
-  const port = 3000;
-
   // TODO: Add option to merge duplicate requests
   const server = createServer(
     async (req: IncomingMessage, res: ServerResponse) => {
@@ -55,44 +47,42 @@ export function middyServer(
       });
 
       req.on("end", async () => {
-        const body = Buffer.concat(buffer).toString();
-        const convertedRequest = getConvertedRequest(
-          req,
-          options.eventType,
-          body
-        );
-        console.log(convertedRequest);
         try {
+          const body = Buffer.concat(buffer).toString();
+
+          const convertedRequest = getConvertedRequest(req, options, body);
+
+          console.log(convertedRequest);
+
           const result = await handler(
             convertedRequest,
             {} as Context,
             () => {}
           );
+
           convertResponse(res, result, "APIGatewayProxyResultV2");
         } catch (error) {
-          console.log(error);
+          const e = error as Error;
           res.statusCode = 500;
-          res.end();
+          res.end(e.message);
         }
       });
     }
   );
 
-  server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
-  });
+  server.listen(options.port);
 }
 
 function getConvertedRequest(
   req: IncomingMessage,
-  eventType: ServerEvent,
+  options: MiddyServerOptions,
   body?: string
 ) {
-  switch (eventType) {
+  switch (options.eventType) {
     case "APIGatewayProxyEvent":
       return null;
     case "APIGatewayProxyEventV2":
-      return convertRequestToAPIGatewayProxyEventV2(req, body);
+      return convertRequestToAPIGatewayProxyEventV2(req, options, body);
     case "ALBEvent":
       return null;
   }
@@ -109,5 +99,6 @@ function convertResponse(
     case "APIGatewayProxyResultV2":
       return convertAPIGatewayProxyResultV2(result, res);
     case "ALBResult":
+      return null;
   }
 }

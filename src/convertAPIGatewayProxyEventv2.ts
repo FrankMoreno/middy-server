@@ -1,7 +1,6 @@
 import type {
   APIGatewayEventRequestContextV2,
   APIGatewayProxyEventV2,
-  APIGatewayProxyEventV2WithRequestContext,
   APIGatewayProxyResultV2,
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
@@ -10,29 +9,28 @@ import {
   type IncomingMessage,
   type ServerResponse,
 } from "http";
+import type { MiddyServerOptions } from ".";
 
 export function convertRequestToAPIGatewayProxyEventV2(
   req: IncomingMessage,
+  options: MiddyServerOptions,
   body?: string
 ): APIGatewayProxyEventV2 {
-  const url = getUrlPath(req.url);
+  const url = new URL(getUrlPath(req.url), `http://localhost:${options.port}`);
 
   return {
+    version: "2.0",
+    routeKey: "$default",
+    rawPath: url.pathname,
+    rawQueryString: url.search,
+    cookies: undefined,
     headers: convertHeaders(req.headers),
+    queryStringParameters: convertQueryParameters(url.searchParams),
+    requestContext: getRequestContext(req, url), // TODO: Create a default for this, eventually allow someone to pass this in
     body,
-    httpMethod: req.method ?? "GET",
-    isBase64Encoded: false, // TODO: Better handle this,
-    path: getUrlPath(req.url),
     pathParameters: undefined,
-    queryStringParameters: getQueryParameters(
-      url,
-      req.headers.host ?? "http//localhost:3000" // TODO: Handle this
-    ),
-    multiValueQueryStringParameters: null,
+    isBase64Encoded: false, // TODO: Better handle this,
     stageVariables: undefined, // TODO: Probably handle this
-    requestContext:
-      {} as unknown as APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>, // TODO: Create a default for this, eventually allow someone to pass this in
-    resource: url,
   };
 }
 
@@ -52,20 +50,42 @@ function convertHeaders(
   return convertedHeaders;
 }
 
-function getQueryParameters(url: string, host: string) {
-  const fullURL = new URL(url, host);
-
-  const queryParams = new URLSearchParams(fullURL.search);
+function convertQueryParameters(queryParams: URLSearchParams) {
   if (queryParams.size === 0) {
     return undefined;
   }
 
-  const queryObject: { [key: string]: string } = {};
+  const queryObject: Record<string, string | undefined> = {};
   queryParams.forEach((value, key) => {
     queryObject[key] = value;
   });
 
   return queryObject;
+}
+
+// TODO: Add better defaults
+function getRequestContext(
+  req: IncomingMessage,
+  url: URL
+): APIGatewayEventRequestContextV2 {
+  return {
+    accountId: "accountId",
+    apiId: "apiId",
+    domainName: "domainName",
+    domainPrefix: "domainPrefix",
+    http: {
+      method: req.method ?? "GET",
+      path: url.pathname,
+      protocol: "http",
+      sourceIp: "sourceIp",
+      userAgent: req.headers["user-agent"] ?? "",
+    },
+    requestId: "requestId",
+    routeKey: "routeKey",
+    stage: "stage",
+    time: "time",
+    timeEpoch: 0,
+  };
 }
 
 function getUrlPath(url: string | undefined): string {
