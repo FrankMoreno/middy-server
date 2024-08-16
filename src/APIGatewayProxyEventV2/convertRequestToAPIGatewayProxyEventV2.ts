@@ -2,15 +2,18 @@ import type {
   APIGatewayEventRequestContextV2,
   APIGatewayProxyEventV2,
 } from "aws-lambda";
-import { type IncomingHttpHeaders, type IncomingMessage } from "http";
-import type { MiddyServerOptions } from "../index";
+import type { IncomingMessage } from "http";
+import {
+  convertHeaders,
+  convertQueryParameters,
+  getURLFromPath,
+} from "../utils";
 
 export function convertRequestToAPIGatewayProxyEventV2(
   req: IncomingMessage,
-  options: MiddyServerOptions,
   body?: string
 ): APIGatewayProxyEventV2 {
-  const url = new URL(getUrlPath(req.url), `http://localhost:${options.port}`);
+  const url = getURLFromPath(req.url, req.headers.host);
 
   return {
     version: "2.0",
@@ -26,35 +29,6 @@ export function convertRequestToAPIGatewayProxyEventV2(
     isBase64Encoded: false, // TODO: Better handle this,
     stageVariables: undefined, // TODO: Probably handle this
   };
-}
-
-function convertHeaders(
-  headers: IncomingHttpHeaders
-): Record<string, string | undefined> {
-  let convertedHeaders: Record<string, string | undefined> = {};
-
-  Object.entries(headers).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      convertedHeaders[key] = value.join(",");
-    } else {
-      convertedHeaders[key] = value;
-    }
-  });
-
-  return convertedHeaders;
-}
-
-function convertQueryParameters(queryParams: URLSearchParams) {
-  if (queryParams.size === 0) {
-    return undefined;
-  }
-
-  const queryObject: Record<string, string | undefined> = {};
-  queryParams.forEach((value, key) => {
-    queryObject[key] = value;
-  });
-
-  return queryObject;
 }
 
 // TODO: Add better defaults
@@ -80,8 +54,4 @@ function getRequestContext(
     time: "time",
     timeEpoch: 0,
   };
-}
-
-function getUrlPath(url: string | undefined): string {
-  return url ?? "/";
 }

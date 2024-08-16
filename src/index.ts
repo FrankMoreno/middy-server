@@ -76,7 +76,7 @@ function getConvertedRequest(
     case "APIGatewayProxyEvent":
       return null;
     case "APIGatewayProxyEventV2":
-      return convertRequestToAPIGatewayProxyEventV2(req, options, body);
+      return convertRequestToAPIGatewayProxyEventV2(req, body);
     case "ALBEvent":
       return null;
   }

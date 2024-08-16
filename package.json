@@ -10,9 +10,9 @@
   "author": "frank.moreno95@gmail.com",
   "license": "ISC",
   "devDependencies": {
+    "@middy/core": "^5.4.6",
     "@middy/http-router": "^5.4.6",
     "@middy/validator": "^5.4.6",
-    "@middy/core": "^5.4.6",
     "@types/aws-lambda": "^8.10.142",
     "@types/node": "^22.0.2",
     "esbuild": "0.23.0",
