@@ -1,11 +1,15 @@
 import type { MiddyfiedHandler } from "@middy/core";
-import { createServer, IncomingMessage, ServerResponse } from "http";
+import { createServer, IncomingMessage, Server, ServerResponse } from "http";
 import type {
   ALBResult,
   APIGatewayProxyResult,
   APIGatewayProxyResultV2,
   Context,
 } from "aws-lambda";
+import {
+  convertALBResultToResponse,
+  converRequestToALBEvent,
+} from "./ALBEvent";
 import {
   convertAPIGatewayProxyResultV2,
   convertRequestToAPIGatewayProxyEventV2,
@@ -22,17 +26,15 @@ export type ServerResult =
   | "ALBResult";
 
 export interface MiddyServerOptions {
-  port: number;
-  eventType: ServerEvent;
+  eventType?: ServerEvent;
 }
 
 export function middyServer(
   handler: MiddyfiedHandler,
   options: MiddyServerOptions = {
-    port: 3000,
     eventType: "APIGatewayProxyEventV2",
   }
-) {
+): Server<typeof IncomingMessage, typeof ServerResponse> {
   // TODO: Add option to merge duplicate requests
   const server = createServer(
     async (req: IncomingMessage, res: ServerResponse) => {
@@ -64,7 +66,7 @@ export function middyServer(
     }
   );
 
-  server.listen(options.port);
+  return server;
 }
 
 function getConvertedRequest(
@@ -78,7 +80,7 @@ function getConvertedRequest(
     case "APIGatewayProxyEventV2":
       return convertRequestToAPIGatewayProxyEventV2(req, body);
     case "ALBEvent":
-      return null;
+      return converRequestToALBEvent(req, body);
   }
 }
 
@@ -91,8 +93,11 @@ function convertResponse(
     case "APIGatewayProxyResult":
       return null;
     case "APIGatewayProxyResultV2":
-      return convertAPIGatewayProxyResultV2(result, res);
+      return convertAPIGatewayProxyResultV2(
+        result as APIGatewayProxyResultV2,
+        res
+      );
     case "ALBResult":
-      return null;
+      return convertALBResultToResponse(result as ALBResult, res);
   }
 }

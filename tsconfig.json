@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "incremental": true,
+    "incremental": false,
     "target": "es2020",
     "module": "ES2020",
     "declaration": true,
     "sourceMap": true,
-    "composite": true,
+    "composite": false,
     "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,

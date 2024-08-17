@@ -1,7 +1,7 @@
 import { ALBResult } from "aws-lambda";
 import { ServerResponse } from "http";
 
-export function converALBResultToResponse(
+export function convertALBResultToResponse(
   result: ALBResult,
   response: ServerResponse
 ) {
@@ -19,7 +19,7 @@ export function converALBResultToResponse(
 
   if (result.multiValueHeaders) {
     Object.entries(result.multiValueHeaders).forEach(([key, value]) => {
-      response.appendHeader(key, value);
+      response.appendHeader(key, value.map(String));
     });
   }
 

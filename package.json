@@ -1,14 +1,29 @@
 {
   "name": "middy-server",
-  "version": "0.1.0-alpha",
-  "description": "",
-  "main": "index.ts",
+  "version": "0.2.0-alpha",
+  "description": "A package that allows you to run a middy handler as an http server",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js",
+    "build": "tsup",
     "build:test": "esbuild test/index.ts --bundle --platform=node --outfile=dist/test.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FrankMoreno/middy-server.git"
+  },
+  "keywords": [
+    "AWS Lambda",
+    "Lambda",
+    "middy",
+    "server"
+  ],
   "author": "frank.moreno95@gmail.com",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@middy/core": "^5.4.6",
     "@middy/http-router": "^5.4.6",
@@ -16,8 +31,10 @@
     "@types/aws-lambda": "^8.10.142",
     "@types/node": "^22.0.2",
     "esbuild": "0.23.0",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "middy-server": "^0.2.0-alpha"
   }
 }
