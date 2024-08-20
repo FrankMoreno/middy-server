@@ -30,5 +30,6 @@ export function convertQueryParameters(queryParams: URLSearchParams) {
 }
 
 export function getURLFromPath(path?: string, hostName?: string): URL {
-  return new URL(path ?? "/", hostName ?? "http://localhost:3000");
+  const host = hostName ? `http://${hostName}` : "http://localhost:3000";
+  return new URL(path ?? "/", host);
 }

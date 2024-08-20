@@ -58,6 +58,7 @@ export function middyServer(
 
           convertResponse(res, result, "APIGatewayProxyResultV2");
         } catch (error) {
+          console.error(error);
           const e = error as Error;
           res.statusCode = 500;
           res.end(e.message);
