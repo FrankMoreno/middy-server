@@ -1,6 +1,6 @@
 {
   "name": "middy-server",
-  "version": "0.2.1-alpha",
+  "version": "0.2.2-alpha",
   "description": "A package that allows you to run a middy handler as an http server",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
