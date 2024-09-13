@@ -1,2 +1,2 @@
-export * from "./convertAPIGatewayProxyEventResultToResponse";
+export * from "./convertAPIGatewayProxyResultToResponse";
 export * from "./convertRequestToAPIGatewayProxyEvent";

@@ -14,6 +14,10 @@ import {
   convertAPIGatewayProxyResultV2,
   convertRequestToAPIGatewayProxyEventV2,
 } from "./APIGatewayProxyEventV2";
+import {
+  convertAPIGatewayProxyResultToResponse,
+  convertRequestToAPIGatewayProxyEvent,
+} from "./APIGatewayProxyEvent";
 
 export type ServerEvent =
   | "APIGatewayProxyEvent"
@@ -56,7 +60,7 @@ export function middyServer(
 
           const result = await handler(convertedRequest, {} as Context);
 
-          convertResponse(res, result, "APIGatewayProxyResultV2");
+          convertResponse(res, result, options);
         } catch (error) {
           console.error(error);
           const e = error as Error;
@@ -77,7 +81,7 @@ function getConvertedRequest(
 ) {
   switch (options.eventType) {
     case "APIGatewayProxyEvent":
-      return null;
+      return convertRequestToAPIGatewayProxyEvent(req, body);
     case "APIGatewayProxyEventV2":
       return convertRequestToAPIGatewayProxyEventV2(req, body);
     case "ALBEvent":
@@ -88,17 +92,20 @@ function getConvertedRequest(
 function convertResponse(
   res: ServerResponse,
   result: APIGatewayProxyResultV2 | APIGatewayProxyResult | ALBResult,
-  serverResult: ServerResult
+  options: MiddyServerOptions
 ) {
-  switch (serverResult) {
-    case "APIGatewayProxyResult":
-      return null;
-    case "APIGatewayProxyResultV2":
+  switch (options.eventType) {
+    case "APIGatewayProxyEvent":
+      return convertAPIGatewayProxyResultToResponse(
+        result as APIGatewayProxyResult,
+        res
+      );
+    case "APIGatewayProxyEventV2":
       return convertAPIGatewayProxyResultV2(
         result as APIGatewayProxyResultV2,
         res
       );
-    case "ALBResult":
+    case "ALBEvent":
       return convertALBResultToResponse(result as ALBResult, res);
   }
 }

@@ -1,10 +1,11 @@
 import { APIGatewayProxyResult } from "aws-lambda";
 import { ServerResponse } from "http";
 
-export function convertAPIGatewayProxyEventResultToResponse(
+export function convertAPIGatewayProxyResultToResponse(
   result: APIGatewayProxyResult,
   response: ServerResponse
 ) {
+  console.log(result);
   response.statusCode = result.statusCode;
 
   if (result.headers) {

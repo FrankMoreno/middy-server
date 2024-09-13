@@ -5,6 +5,7 @@ import {
 } from "aws-lambda";
 import { IncomingMessage } from "http";
 import {
+  convertHeaders,
   convertQueryParameters,
   getMethodFromRequest,
   getURLFromPath,
@@ -18,7 +19,7 @@ export function convertRequestToAPIGatewayProxyEvent(
 
   return {
     body: body ? body : null,
-    headers: {},
+    headers: convertHeaders(req.headers),
     multiValueHeaders: {},
     httpMethod: getMethodFromRequest(req.method),
     isBase64Encoded: false,
