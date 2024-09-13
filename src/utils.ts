@@ -17,10 +17,6 @@ export function convertHeaders(
 }
 
 export function convertQueryParameters(queryParams: URLSearchParams) {
-  if (queryParams.size === 0) {
-    return undefined;
-  }
-
   const queryObject: Record<string, string | undefined> = {};
   queryParams.forEach((value, key) => {
     queryObject[key] = value;
@@ -32,4 +28,8 @@ export function convertQueryParameters(queryParams: URLSearchParams) {
 export function getURLFromPath(path?: string, hostName?: string): URL {
   const host = hostName ? `http://${hostName}` : "http://localhost:3000";
   return new URL(path ?? "/", host);
+}
+
+export function getMethodFromRequest(method?: string) {
+  return method ?? "GET";
 }

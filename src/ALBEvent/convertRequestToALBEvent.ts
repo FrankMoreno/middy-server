@@ -3,6 +3,7 @@ import { IncomingMessage } from "http";
 import {
   convertHeaders,
   convertQueryParameters,
+  getMethodFromRequest,
   getURLFromPath,
 } from "../utils";
 
@@ -14,7 +15,7 @@ export function converRequestToALBEvent(
 
   return {
     requestContext: getALBRequestContext(),
-    httpMethod: req.method ?? "GET",
+    httpMethod: getMethodFromRequest(req.method),
     path: url.pathname,
     headers: convertHeaders(req.headers),
     queryStringParameters: convertQueryParameters(url.searchParams),

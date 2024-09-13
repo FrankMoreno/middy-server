@@ -6,6 +6,7 @@ import type { IncomingMessage } from "http";
 import {
   convertHeaders,
   convertQueryParameters,
+  getMethodFromRequest,
   getURLFromPath,
 } from "../utils";
 
@@ -22,7 +23,7 @@ export function convertRequestToAPIGatewayProxyEventV2(
     rawQueryString: url.search,
     cookies: undefined,
     headers: convertHeaders(req.headers),
-    queryStringParameters: convertQueryParameters(url.searchParams),
+    queryStringParameters: convertQueryParamsOrUndefined(url.searchParams),
     requestContext: getRequestContext(req, url), // TODO: Create a default for this, eventually allow someone to pass this in
     body,
     pathParameters: undefined,
@@ -42,7 +43,7 @@ function getRequestContext(
     domainName: "domainName",
     domainPrefix: "domainPrefix",
     http: {
-      method: req.method ?? "GET",
+      method: getMethodFromRequest(req.method),
       path: url.pathname,
       protocol: "http",
       sourceIp: "sourceIp",
@@ -54,4 +55,12 @@ function getRequestContext(
     time: "time",
     timeEpoch: 0,
   };
+}
+
+function convertQueryParamsOrUndefined(queryParams: URLSearchParams) {
+  if (queryParams.size === 0) {
+    return undefined;
+  }
+
+  return convertQueryParameters(queryParams);
 }
